@@ -1,7 +1,7 @@
 function main;
 beginparams
 endparams
-##this is a test
+
 beginlocals
 
   n : integer;
