@@ -1,7 +1,7 @@
 
 %%
 
-"hello world" printf("GOODBYE\n");
+"hello world" printf("GOODBYE!\n");
 .               ;
 
 %%
