@@ -11,13 +11,13 @@ DIGIT    [0-9]
 
 %%
 
-"-"            {currPos += yyleng; numOperators++; return MINUS}
-"+"            {currPos += yyleng; numOperators++; return PLUS}
-"*"            {currPos += yyleng; numOperators++; return MULT}
-"/"            {currPos += yyleng; numOperators++; return DIV}
-"="            {currPos += yyleng; numEquals++; return EQUAL}
-"("            {currPos += yyleng; numParens++; return L_PAREN}
-")"            {currPos += yyleng; numParens++; return R_PAREN}
+"-"            {currPos += yyleng; numOperators++; return MINUS;}
+"+"            {currPos += yyleng; numOperators++; return PLUS;}
+"*"            {currPos += yyleng; numOperators++; return MULT;}
+"/"            {currPos += yyleng; numOperators++; return DIV;}
+"="            {currPos += yyleng; numEquals++; return EQUAL;}
+"("            {currPos += yyleng; numParens++; return L_PAREN;}
+")"            {currPos += yyleng; numParens++; return R_PAREN;}
 
 (\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?)   {currPos += yyleng; yylval.dval = atof(yytext); numNumbers++; return NUMBER;}
 
