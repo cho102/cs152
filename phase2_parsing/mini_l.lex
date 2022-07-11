@@ -71,7 +71,7 @@ return             {printf("\n"); currPos += yyleng; return RETURN;}
 
 ({DIGIT}+|_)({LETTER}+{DIGIT}*(_?))*{LETTER}*{DIGIT}*          {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currPos, currLine, yytext); exit(0);}
 ({LETTER}+{DIGIT}*(_?))*_                                      {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", currPos, currLine, yytext); exit(0);}
-({LETTER}+{DIGIT}*(_?))*{LETTER}*{DIGIT}*                      {currPos += yyleng; yylval.id_val = atof(yytext); return IDENT;}
+({LETTER}+{DIGIT}*(_?))*{LETTER}*{DIGIT}*                      {currPos += yyleng; yylval.id_val = yytext; return IDENT;}
 
 [ \t]+         {/* ignore spaces */ currPos += yyleng;}
 "\n"           {currLine++; currPos = 1;}

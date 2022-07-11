@@ -16,7 +16,7 @@ beginlocals
 	n : integer;
 	fib_n : integer;
 endlocals
-beginbody
+beginbody`
 	read n;
 	fib_n := fibonacci(n);
 	write fib_n;
