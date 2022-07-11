@@ -133,8 +133,7 @@ Comp:                   EQ                              {printf("Comp -> EQ\n");
                         |GTE                            {printf("Comp -> GTE\n");}
                         ;
 
-Expression:             Multiplicative_Expr             {printf("Expression -> Multiplicative_Expr\n");} 
-                        | ME                            {printf("Expression -> ME\n");}
+Expression:             Multiplicative_Expr  ME           {printf("Expression -> Multiplicative_Expr ME\n");} 
                         ;
 
 ME:                     MINUS Multiplicative_Expr ME    {printf("ME -> MINUS Multiplicative_Expr ME\n");} 
@@ -142,8 +141,7 @@ ME:                     MINUS Multiplicative_Expr ME    {printf("ME -> MINUS Mul
                         |/*empty*/                      {printf("ME -> epison\n");} 
                         ;
 
-Multiplicative_Expr:    Term                            {printf("Multiplicative_Expr -> Term\n");} 
-                        | ME_branch                     {printf("Multiplicative_Expr -> ME_branch\n");}
+Multiplicative_Expr:    Term ME_branch                           {printf("Multiplicative_Expr -> Term ME_Branch\n");} 
                         ;
 
 ME_branch:              MOD Term ME_branch              {printf("ME_branch -> MOD Term ME_branch\n");} 

@@ -32,10 +32,10 @@ RE_D -> L_PAREN Bool_Expr R_PAREN
 
 Comp -> EQ|NEQ|LT|GT|LTE|GTE
 
-Expression -> Multiplicative_Expr | ME
+Expression -> Multiplicative_Expr ME
 ME -> MINUS Multiplicative_Expr ME | PLUS Multiplicative_Expr ME | empty
 
-Multiplicative_Expr -> Term | ME_branch
+Multiplicative_Expr -> Term ME_branch
 ME_branch -> MOD Term ME_branch | DIV Term ME_branch | MULT Term ME_branch | empty
 
 Term -> Term_branch | MINUS Term_branch | IDENT L_PAREN Expr R_PAREN
