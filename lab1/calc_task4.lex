@@ -7,7 +7,7 @@
 %}
 
 DIGIT    [0-9]
-   
+
 %%
 
 "-"            {printf("MINUS\n"); currPos += yyleng; numOperators++;}
