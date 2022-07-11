@@ -24,7 +24,6 @@
 %right ASSIGN
 
 %%
-{printf("\n");}
 Program:                Functions                       {printf("Program -> Functions\n");}
                         ;
 
