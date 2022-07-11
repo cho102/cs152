@@ -37,8 +37,8 @@ Functions:              /*empty*/                       {printf("Functions -> ep
                         | Function Functions            {printf("Functions -> Function Functions\n");}
                         ;
 
-Function:               FUNCTION IDENT SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
-                                                        {printf("Function -> FUNCTION IDENT SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY\n");}
+Function:               FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
+                                                        {printf("Function -> FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY\n");}
 
 Dec:                    Declaration SEMICOLON Dec       {printf("Dec -> Declaration SEMICOLON Dec\n");}
                         |/*empty*/                      {printf("Dec -> epison\n");}
@@ -55,8 +55,8 @@ Declaration:            Ident COLON INTEGER             {printf("Declaration -> 
                                                         {printf("Declaration -> Ident COLON ENUM L_PAREN Ident R_PAREN INTEGER\n");}
                         ;
 
-Ident:                  IDENT                           {printf("Ident -> IDENT\n");} 
-                        | IDENT COMMA Ident             {printf("Ident -> IDENT COMMA Ident\n");}
+Ident:                  Identifier                           {printf("Ident -> Identifier\n");} 
+                        | Identifier COMMA Ident             {printf("Ident -> Identifier COMMA Ident\n");}
                         ;
 
 Statement:              A                               {printf("Statement -> A\n");}
@@ -158,7 +158,7 @@ ME_branch:              MOD Term ME_branch              {printf("ME_branch -> MO
 
 Term:                   Term_branch                     {printf("Term -> Term_branch\n");} 
                         | MINUS Term_branch             {printf("Term -> MINUS Term_branch\n");} 
-                        | IDENT L_PAREN Expr R_PAREN    {printf("Term -> IDENT L_PAREN Expr R_PAREN\n");}
+                        | Identifier L_PAREN Expr R_PAREN    {printf("Term -> Identifier L_PAREN Expr R_PAREN\n");}
                         ;
 
 Term_branch:            Var                             {printf("Term_branch -> Var\n");} 
@@ -174,10 +174,12 @@ Expr_Loop:              Expression                      {printf("Expr_Loop -> Ex
                         | Expression COMMA Expr_Loop    {printf("Expr_Loop -> Expression Comma Expr_Loop\n");}
                         ;
 
-Var:                    IDENT                           {printf("Var -> IDENT\n");} 
-                        | IDENT L_SQUARE_BRACKET Expression R_SQUARE_BRACKET        
-                                                        {printf("Var -> IDENT L_SQUARE_BRACKET Expression R_SQUARE_BRACKET\n");}
+Var:                    Identifier                           {printf("Var -> Identifier\n");} 
+                        | Identifier L_SQUARE_BRACKET Expression R_SQUARE_BRACKET        
+                                                        {printf("Var -> Identifier L_SQUARE_BRACKET Expression R_SQUARE_BRACKET\n");}
                         ;
+
+Identifier:             IDENT                           {printf("Identifier -> IDENT %s\n", $1);}
 
 %%
 
