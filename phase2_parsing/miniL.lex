@@ -67,11 +67,11 @@ return             {printf("\n"); currPos += yyleng; return RETURN;}
 ":="           {printf("\n"); currPos += yyleng; return ASSIGN;}
 
 ##.*           {currLine++; currPos = 1;}
-(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?)         {currPos += yyleng; yylval.dval = atof(yytext); return NUMBER;}
+(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?)         {currPos += yyleng; yylval.num_val = atof(yytext); return NUMBER;}
 
 ({DIGIT}+|_)({LETTER}+{DIGIT}*(_?))*{LETTER}*{DIGIT}*          {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currPos, currLine, yytext); exit(0);}
 ({LETTER}+{DIGIT}*(_?))*_                                      {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", currPos, currLine, yytext); exit(0);}
-({LETTER}+{DIGIT}*(_?))*{LETTER}*{DIGIT}*                      {printf("IDENT %s\n", yytext); currPos += yyleng;}
+({LETTER}+{DIGIT}*(_?))*{LETTER}*{DIGIT}*                      {currPos += yyleng; yylval.id_val = atof(yytext); return IDENT;}
 
 [ \t]+         {/* ignore spaces */ currPos += yyleng;}
 "\n"           {currLine++; currPos = 1;}
