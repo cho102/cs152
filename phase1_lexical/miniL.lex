@@ -1,11 +1,11 @@
-   /* cs152-miniL phase1 */
-   
+/* cs152-miniL phase1 */
+
 %{   
    /* write your C code here for definitions of variables and including headers */
    int currLine = 1, currPos = 1;
 %}
 
-   /* some common rules */
+/* some common rules */
 DIGIT    [0-9]
 LETTER   [a-zA-Z]
 
