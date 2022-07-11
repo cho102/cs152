@@ -1,12 +1,12 @@
 Program -> Functions
 Functions -> Function Functions | empty
 
-Function -> FUNCTION IDENT SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
+Function -> FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
 Dec -> Declaration SEMICOLON Dec | empty
 Stmt -> Statement SEMICOLON Stmt | Statement SEMICOLON
 
-Declaration -> Ident COLON INTEGER | Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER | Ident COLON ENUM L_PAREN Ident R_PAREN INTEGER
-Ident -> IDENT | IDENT COMMA Ident
+Declaration -> Ident COLON INTEGER | Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER | Ident COLON ENUM L_PAREN Ident R_PAREN
+Ident -> Identifier | Identifier COMMA Ident
 
 Statement -> A|B|C|D|E|F|G|H
 A -> Var ASSIGN Expression
@@ -38,9 +38,11 @@ ME -> MINUS Multiplicative_Expr ME | PLUS Multiplicative_Expr ME | empty
 Multiplicative_Expr -> Term ME_branch
 ME_branch -> MOD Term ME_branch | DIV Term ME_branch | MULT Term ME_branch | empty
 
-Term -> Term_branch | MINUS Term_branch | IDENT L_PAREN Expr R_PAREN
+Term -> Term_branch | MINUS Term_branch | Identifier L_PAREN Expr R_PAREN
 Term_branch -> Var | NUMBER | L_PAREN Expression R_PAREN
 Expr -> Expr_Loop | empty
 Expr_Loop -> Expression | Expression Comma Expr_Loop
 
-Var -> IDENT | IDENT L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
+Var -> Identifier | Identifier L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
+
+Identifier -> IDENT
