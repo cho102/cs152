@@ -51,8 +51,8 @@ Stmt:                   Statement SEMICOLON Stmt        {printf("Stmt -> Stateme
 Declaration:            Ident COLON INTEGER             {printf("Declaration -> Ident COLON INTEGER\n");} 
                         | Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER        
                                                         {printf("Declaration -> Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");} 
-                        | Ident COLON ENUM L_PAREN Ident R_PAREN INTEGER                                
-                                                        {printf("Declaration -> Ident COLON ENUM L_PAREN Ident R_PAREN INTEGER\n");}
+                        | Ident COLON ENUM L_PAREN Ident R_PAREN                                
+                                                        {printf("Declaration -> Ident COLON ENUM L_PAREN Ident R_PAREN\n");}
                         ;
 
 Ident:                  Identifier                           {printf("Ident -> Identifier\n");} 
