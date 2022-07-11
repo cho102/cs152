@@ -1,0 +1,45 @@
+Program -> Function
+
+Function -> function IDENT SEMICOLON BEGINPARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
+Dec -> Declaration SEMICOLON Dec | empty
+Stmt -> Statement SEMICOLON Stmt | Statement SEMICOLON
+
+Declaration -> Ident COLON INTEGER | Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER | Ident COLON ENUM L_PAREN Ident R_PAREN INTEGER
+Ident -> IDENT | IDENT COMMA Ident
+
+Statement = A|B|C|D|E|F|G|H
+A -> Var ASSIGN Expression
+B -> IF Bool-Exp THEN Stmt ENDIF | IF Bool-Exp THEN Stmt ELSE Stmt ENDIF
+C -> WHILE Bool-Exp BEGINLOOP Stmt ENDLOOP
+D -> DO BEGINLOOP Stmt ENDLOOP WHILE Bool-Exp
+E -> READ Var E'
+E' -> COMMA Var E' | empty
+F -> WRITE Var E'
+G -> CONTINUE
+H -> RETURN Expression
+
+Bool-Expr -> Relation-And-Expr RAE
+RAE -> OR Relation-And-Expr RAE | empty
+
+Relation-And-Expr -> Relation-Expr RE
+RE -> AND Relation-Expr RE | empty
+
+Relation-Expr -> RE_branch | NOT RE_branch
+RE_branch -> RE_A | TRUE | FALSE | RE_D
+RE_A -> Expression Comp Expression
+RE_D -> L_PAREN Bool-Expr R_PAREN
+
+Comp -> EQ|NEQ|LT|GT|LTE|GTE
+
+Expression -> Multiplicative-Expr | ME
+ME -> MINUS Multiplicative-Expr ME | PLUS Multiplicative-Expr ME | empty
+
+Multiplicative-Expr -> Term | T'
+T' -> MOD Term T' | DIV Term T' | MULT Term T' | empty
+
+Term -> Term_branch | MINUS Term_branch | IDENT L_PAREN Expr R_PAREN
+Term_branch -> Var | NUMBER | L_PAREN Expression R_PAREN
+Expr -> Expr_Loop | empty
+Expr_Loop -> Expression | Expression Comma Expr_Loop
+
+Var -> IDENT | IDENT L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
