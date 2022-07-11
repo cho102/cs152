@@ -21,11 +21,13 @@
 %token <id_val> IDENT
 %token <num_val> NUMBER
 
-%left MULT DIV MOD PLUS MINUS
-%left LT LTE GT GTE EQ NEQ
-%right NOT
-%left AND OR 
-%right ASSIGN
+%left PLUS MINUS //4
+%left MULT DIV MOD //3
+%left LT LTE GT GTE EQ NEQ //5
+%right NOT //6
+%left AND //7
+%left OR  //8
+%right ASSIGN //9
 
 %%
 Program:                Functions                       {printf("Program -> Functions\n");}
