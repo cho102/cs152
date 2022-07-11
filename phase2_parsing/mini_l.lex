@@ -13,58 +13,58 @@ LETTER   [a-zA-Z]
 %%
    /* specific lexer rules in regex */
 
-function           {printf("\n"); currPos += yyleng; return FUNCTION;}
-beginparams        {printf("\n"); currPos += yyleng; return BEGIN_PARAMS;}
-endparams          {printf("\n"); currPos += yyleng; return END_PARAMS;}
-beginlocals        {printf("\n"); currPos += yyleng; return BEGIN_LOCALS;}
-endlocals          {printf("\n"); currPos += yyleng; return END_LOCALS;}
-beginbody          {printf("\n"); currPos += yyleng; return BEGIN_BODY;}
-endbody            {printf("\n"); currPos += yyleng; return END_BODY;}
-integer            {printf("\n"); currPos += yyleng; return INTEGER;}
-array              {printf("\n"); currPos += yyleng; return ARRAY;}
-enum               {printf("\n"); currPos += yyleng; return ENUM;}
-of                 {printf("\n"); currPos += yyleng; return OF;}
-if                 {printf("\n"); currPos += yyleng; return IF;}
-then               {printf("\n"); currPos += yyleng; return THEN;}
-endif              {printf("\n"); currPos += yyleng; return ENDIF;}
-else               {printf("\n"); currPos += yyleng; return ELSE;}
-for                {printf("\n"); currPos += yyleng; return FOR;}
-while              {printf("\n"); currPos += yyleng; return WHILE;}
-do                 {printf("\n"); currPos += yyleng; return DO;}
-beginloop          {printf("\n"); currPos += yyleng; return BEGINLOOP;}
-endloop            {printf("\n"); currPos += yyleng; return ENDLOOP;}
-continue           {printf("\n"); currPos += yyleng; return CONTINUE;}
-read               {printf("\n"); currPos += yyleng; return READ;}
-write              {printf("\n"); currPos += yyleng; return WRITE;}
-and                {printf("\n"); currPos += yyleng; return AND;}
-or                 {printf("\n"); currPos += yyleng; return OR;}
-not                {printf("\n"); currPos += yyleng; return NOT;}
-true               {printf("\n"); currPos += yyleng; return TRUE;}
-false              {printf("\n"); currPos += yyleng; return FALSE;}
-return             {printf("\n"); currPos += yyleng; return RETURN;}
+function           {currPos += yyleng; return FUNCTION;}
+beginparams        {currPos += yyleng; return BEGIN_PARAMS;}
+endparams          {currPos += yyleng; return END_PARAMS;}
+beginlocals        {currPos += yyleng; return BEGIN_LOCALS;}
+endlocals          {currPos += yyleng; return END_LOCALS;}
+beginbody          {currPos += yyleng; return BEGIN_BODY;}
+endbody            {currPos += yyleng; return END_BODY;}
+integer            {currPos += yyleng; return INTEGER;}
+array              {currPos += yyleng; return ARRAY;}
+enum               {currPos += yyleng; return ENUM;}
+of                 {currPos += yyleng; return OF;}
+if                 {currPos += yyleng; return IF;}
+then               {currPos += yyleng; return THEN;}
+endif              {currPos += yyleng; return ENDIF;}
+else               {currPos += yyleng; return ELSE;}
+for                {currPos += yyleng; return FOR;}
+while              {currPos += yyleng; return WHILE;}
+do                 {currPos += yyleng; return DO;}
+beginloop          {currPos += yyleng; return BEGINLOOP;}
+endloop            {currPos += yyleng; return ENDLOOP;}
+continue           {currPos += yyleng; return CONTINUE;}
+read               {currPos += yyleng; return READ;}
+write              {currPos += yyleng; return WRITE;}
+and                {currPos += yyleng; return AND;}
+or                 {currPos += yyleng; return OR;}
+not                {currPos += yyleng; return NOT;}
+true               {currPos += yyleng; return TRUE;}
+false              {currPos += yyleng; return FALSE;}
+return             {currPos += yyleng; return RETURN;}
 
-"-"            {printf("\n"); currPos += yyleng; return MINUS;}
-"+"            {printf("\n"); currPos += yyleng; return PLUS;}
-"*"            {printf("\n"); currPos += yyleng; return MULT;}
-"/"            {printf("\n"); currPos += yyleng; return DIV;}
-"%"            {printf("\n"); currPos += yyleng; return MOD;}
+"-"            {currPos += yyleng; return MINUS;}
+"+"            {currPos += yyleng; return PLUS;}
+"*"            {currPos += yyleng; return MULT;}
+"/"            {currPos += yyleng; return DIV;}
+"%"            {currPos += yyleng; return MOD;}
 
-"=="            {printf("\n"); currPos += yyleng; return EQ;}
-"<>"            {printf("\n"); currPos += yyleng; return NEQ;}
-"<"             {printf("\n"); currPos += yyleng; return LT;}
-">"             {printf("\n"); currPos += yyleng; return GT;}
-"<="            {printf("\n"); currPos += yyleng; return LTE;}
-">="            {printf("\n"); currPos += yyleng; return GTE;}
+"=="            {currPos += yyleng; return EQ;}
+"<>"            {currPos += yyleng; return NEQ;}
+"<"             {currPos += yyleng; return LT;}
+">"             {currPos += yyleng; return GT;}
+"<="            {currPos += yyleng; return LTE;}
+">="            {currPos += yyleng; return GTE;}
 
 
-";"            {printf("\n"); currPos += yyleng; return SEMICOLON;}
-":"            {printf("\n"); currPos += yyleng; return COLON;}
-","            {printf("\n"); currPos += yyleng; return COMMA;}
-"("            {printf("\n"); currPos += yyleng; return L_PAREN;}
-")"            {printf("\n"); currPos += yyleng; return R_PAREN;}
-"["            {printf("\n"); currPos += yyleng; return L_SQUARE_BRACKET;}
-"]"            {printf("\n"); currPos += yyleng; return R_SQUARE_BRACKET;}
-":="           {printf("\n"); currPos += yyleng; return ASSIGN;}
+";"            {currPos += yyleng; return SEMICOLON;}
+":"            {currPos += yyleng; return COLON;}
+","            {currPos += yyleng; return COMMA;}
+"("            {currPos += yyleng; return L_PAREN;}
+")"            {currPos += yyleng; return R_PAREN;}
+"["            {currPos += yyleng; return L_SQUARE_BRACKET;}
+"]"            {currPos += yyleng; return R_SQUARE_BRACKET;}
+":="           {currPos += yyleng; return ASSIGN;}
 
 ##.*           {currLine++; currPos = 1;}
 (\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?)         {currPos += yyleng; yylval.num_val = atof(yytext); return NUMBER;}
