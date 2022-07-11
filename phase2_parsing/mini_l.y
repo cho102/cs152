@@ -78,14 +78,14 @@ B:                      IF Bool_Expr THEN Stmt ENDIF    {printf("B -> IF Bool_Ex
                         ;
 
 C:                      WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP      
-                                                        {printf("WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP\n");}
+                                                        {printf("C -> WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP\n");}
                         ;
 
 D:                      DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr       
-                                                        {printf("DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr\n");}
+                                                        {printf("D -> DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr\n");}
                         ;
 
-E:                      READ Var E_BRANCH               {printf("READ Var E_BRANCH\n");}
+E:                      READ Var E_BRANCH               {printf("E -> READ Var E_BRANCH\n");}
                         ;
 
 E_BRANCH:               COMMA Var E_BRANCH              {printf("E_BRANCH -> COMMA Var E_BRANCH\n");} 
@@ -125,10 +125,10 @@ RE_branch:              RE_A                            {printf("RE_branch -> RE
                         | RE_D                          {printf("RE_branch -> RE_D\n");}
                         ;
 
-RE_A:                   Expression Comp Expression      {printf("Expression Comp Expression\n");}
+RE_A:                   Expression Comp Expression      {printf("RE_A -> Expression Comp Expression\n");}
                         ;
 
-RE_D:                   L_PAREN Bool_Expr R_PAREN       {printf("L_PAREN Bool_Expr R_PARENComp -> EQ|NEQ|LT|GT|LTE|GTE\n");}
+RE_D:                   L_PAREN Bool_Expr R_PAREN       {printf("RE_D -> L_PAREN Bool_Expr R_PAREN\n");}
                         ;
 
 Comp:                   EQ                              {printf("Comp -> EQ\n");}
@@ -147,7 +147,7 @@ ME:                     MINUS Multiplicative_Expr ME    {printf("ME -> MINUS Mul
                         |/*empty*/                      {printf("ME -> epison\n");} 
                         ;
 
-Multiplicative_Expr:    Term ME_branch                           {printf("Multiplicative_Expr -> Term ME_Branch\n");} 
+Multiplicative_Expr:    Term ME_branch                  {printf("Multiplicative_Expr -> Term ME_branch\n");} 
                         ;
 
 ME_branch:              MOD Term ME_branch              {printf("ME_branch -> MOD Term ME_branch\n");} 
@@ -174,7 +174,7 @@ Expr_Loop:              Expression                      {printf("Expr_Loop -> Ex
                         | Expression COMMA Expr_Loop    {printf("Expr_Loop -> Expression Comma Expr_Loop\n");}
                         ;
 
-Var:                    Identifier                           {printf("Var -> Identifier\n");} 
+Var:                    Identifier                      {printf("Var -> Identifier\n");} 
                         | Identifier L_SQUARE_BRACKET Expression R_SQUARE_BRACKET        
                                                         {printf("Var -> Identifier L_SQUARE_BRACKET Expression R_SQUARE_BRACKET\n");}
                         ;
