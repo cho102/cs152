@@ -180,6 +180,7 @@ Var:                    Identifier                      {printf("Var -> Identifi
                         ;
 
 Identifier:             IDENT                           {printf("Identifier -> IDENT %s\n", $1);}
+                        ;
 
 %%
 
