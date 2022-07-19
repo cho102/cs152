@@ -147,9 +147,9 @@ Statement:              Var ASSIGN Expression
                         {}
                         |DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr                              
                         {}
-                        |READ Var E_BRANCH                              
+                        |READ E_BRANCH                              
                         {}
-                        |WRITE Var E_BRANCH                              
+                        |WRITE E_BRANCH                              
                         {}
                         |CONTINUE                              
                         {}
@@ -166,26 +166,58 @@ B:                      IF Bool_Expr THEN Stmt ENDIF
                         {}
                         ;
 
-E_BRANCH:               COMMA Var E_BRANCH              
-                        {} 
-                        |%empty                      
+E_BRANCH:               Var COMMA E_BRANCH              
                         {
+                            std::string temp;
+                            temp.append($1.code);
+                            if($1.arr){
+                                temp.append(".[]| ");
+                            }
+                            else{
+                                temp.append(".| ");
+                            }
+                            temp.append($1.place);
+                            temp.append("\n");
+                            temp.append($3.code);
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup("");
+                        } 
+                        | Var                     
+                        {
+                            std::string temp;
+                            temp.append($1.code);
+                            if($1.arr){
+                                temp.append(".[]| ");
+                            }
+                            else{
+                                temp.append(".| ");
+                            }
+                            temp.append($1.place);
+                            temp.append("\n");
                             $$.place = strdup("");
                             $$.code = strdup("");
                         } 
                         ;
 
-Bool_Expr:              Relation_And_Expr RAE           
-                        {}
-                        ;
-
-RAE:                    OR Relation_And_Expr RAE        
+Bool_Expr:              Relation_And_Expr OR Bool_Expr        
                         {
+                            std::string temp;
+                            std::string dst = new_temp();
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp += ". " + dst + "\n";
+                            temp += "|| " + dst + "\n";
+                            temp.append($1.place);
+                            temp.append(", ");
+                            temp.append($3.place);
+                            temp.append("\n");
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
-                        |%empty                      
+                        | Relation_And_Expr                      
                         {
-                            $$.place = strdup("");
-                            $$.code = strdup("");
+                            $$.place = strdup($1.code);
+                            $$.code = strdup($1.place);
                         }
                         ;
 
@@ -469,7 +501,18 @@ Term:                   Var
                         }
                         | Identifier L_PAREN Expression R_PAREN
                         {
-                            //11:40
+                            std::string temp;
+                            std::string func = $1.place;
+                            if(funcs.find(func) == funcs.end()) {
+                                printf("Calling undeclared function %s. \n", func.c_str());
+                            }
+                            std::string dst = new_temp();
+                            temp.append($3.code);
+                            temp += ". " + dst + "\ncall ";
+                            temp.append($1.place);
+                            temp ++ ", " + dst + "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         }
                         | MINUS L_PAREN Expression R_PAREN
                         {
@@ -484,8 +527,6 @@ Term:                   Var
                             $$.place = strdup($3.place);
                         }
                         ;
-//11:20 TODO
-
 Expr_Loop:              Expression                      
                         {
                             std::string temp;
