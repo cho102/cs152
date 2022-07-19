@@ -204,3 +204,105 @@ void yyerror(const char *msg)
     printf("Error at Line %d and position %d: %s\n", currLine, currPos, msg);
     exit(0);
 }
+
+/*
+
+Program:                Functions                       {printf("Program -> Functions\n");}
+                        ;
+
+Functions:              %empty                       {printf("Functions -> epsilon\n");}
+                        | Function Functions            {printf("Functions -> Function Functions\n");}
+                        ;
+
+Function:               FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
+                                                        {printf("Function -> FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY\n");}
+
+Dec:                    Declaration SEMICOLON Dec       {printf("Dec -> Declaration SEMICOLON Dec\n");}
+                        |%empty                      {printf("Dec -> epison\n");}
+                        ;
+
+Stmt:                   Statement SEMICOLON Stmt        {printf("Stmt -> Statement SEMICOLON Stmt\n");}
+                        | %empty           {printf("Stmt -> epison\n");}
+                        ;
+
+Declaration:            Ident COLON INTEGER             {printf("Declaration -> Ident COLON INTEGER\n");} 
+                        | Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER        
+                                                        {printf("Declaration -> Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");} 
+                        | Ident COLON ENUM L_PAREN Ident R_PAREN                                
+                                                        {printf("Declaration -> Ident COLON ENUM L_PAREN Ident R_PAREN\n");}
+                        ;
+
+Ident:                  Identifier                           {printf("Ident -> Identifier\n");} 
+                        | Identifier COMMA Ident             {printf("Ident -> Identifier COMMA Ident\n");}
+                        ;
+
+Statement:              Var ASSIGN Expression           {printf("Statement -> Var ASSIGN Expression\n");}
+                        |IF Bool_Expr THEN Stmt ENDIF    {printf("Statement -> IF Bool_Expr THEN Stmt ENDIF\n");} 
+                        |IF Bool_Expr THEN Stmt ELSE Stmt ENDIF        
+                                                        {printf("Statement -> IF Bool_Expr THEN Stmt ELSE Stmt ENDIF\n");}
+                        |WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP      
+                                                        {printf("Statement -> WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP\n");}
+                        |DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr       
+                                                        {printf("Statement -> DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr\n");}
+                        |READ E_BRANCH              {printf("Statement -> READ E_BRANCH\n");}
+                        |WRITE E_BRANCH              {printf("Statement -> WRITE E_BRANCH\n");}
+                        |CONTINUE                        {printf("Statement -> CONTINUE\n");}
+                        |RETURN Expression               {printf("Statement -> RETURN Expression\n");}
+                        ;
+E_BRANCH:               Var COMMA E_BRANCH              {printf("E_BRANCH -> Var COMMA E_BRANCH\n");} 
+                        |Var                            {printf("E_BRANCH -> Var\n");} 
+                        ;
+Bool_Expr:              Relation_And_Expr OR Bool_Expr           {printf("Bool_Expr -> Relation_And_Expr OR Bool_Expr\n");}
+                        | Relation_And_Expr                         {printf("Bool_Expr -> Relation_And_Expr\n");}
+                        ;
+Relation_And_Expr:      Relation_Expr AND Relation_And_Expr                {printf("Relation_And_Expr -> Relation_Expr AND Relation_And_Expr\n");}
+                        | Relation_Expr                                     {printf("Relation_And_Expr -> Relation_Expr\n");}
+                        ;
+Relation_Expr:          RE_branch                       {printf("Relation_Expr -> RE_branch\n");} 
+                        | NOT RE_branch                 {printf("Relation_Expr -> NOT RE_branch\n");}
+                        ;
+
+RE_branch:              Expression Comp Expression      {printf("RE_branch -> Expression Comp Expression\n");}
+                        | TRUE                          {printf("RE_branch -> TRUE\n");} 
+                        | FALSE                         {printf("RE_branch -> FALSE\n");} 
+                        | L_PAREN Bool_Expr R_PAREN       {printf("RE_branch -> L_PAREN Bool_Expr R_PAREN\n");}
+                        ;
+Comp:                   EQ                              {printf("Comp -> EQ\n");}
+                        |NEQ                            {printf("Comp -> NEQ\n");}
+                        |LT                             {printf("Comp -> LT\n");}
+                        |GT                             {printf("Comp -> GT\n");}
+                        |LTE                            {printf("Comp -> LTE\n");}
+                        |GTE                            {printf("Comp -> GTE\n");}
+                        ;
+
+Expression:             Multiplicative_Expr MINUS Expression    {printf("ME -> MINUS Multiplicative_Expr ME\n");} 
+                        | Multiplicative_Expr PLUS Expression   {printf("ME -> PLUS Multiplicative_Expr ME\n");} 
+                        | Multiplicative_Expr   {printf("ME -> PLUS Multiplicative_Expr ME\n");} 
+                        ;
+Multiplicative_Expr:    Term MOD Multiplicative_Expr              {printf("ME_branch -> MOD Term ME_branch\n");} 
+                        | Term DIV Multiplicative_Expr            {printf("ME_branch -> DIV Term ME_branch\n");} 
+                        | Term MULT Multiplicative_Expr           {printf("ME_branch -> MULT Term ME_branch\n");} 
+                        |%empty                      {printf("ME_branch -> epison\n");}
+                        ;
+
+Term:                   Var                             {printf("Term -> Var\n");} 
+                        | NUMBER                        {printf("Term -> NUMBER\n");} 
+                        | L_PAREN Expression R_PAREN    {printf("Term -> L_PAREN Expression R_PAREN\n");}
+                        | MINUS Var                             {printf("Term -> MINUS Var\n");} 
+                        | MINUS NUMBER                        {printf("Term -> MINUS NUMBER\n");} 
+                        | MINUS L_PAREN Expression R_PAREN    {printf("Term -> MINUS L_PAREN Expression R_PAREN\n");}
+                        | Identifier L_PAREN Expr_Loop R_PAREN    {printf("Term -> Identifier L_PAREN Expr_Loop R_PAREN\n");}
+                        ;
+Expr_Loop:              Expression                      {printf("Expr_Loop -> Expression\n");} 
+                        | Expression COMMA Expr_Loop    {printf("Expr_Loop -> Expression Comma Expr_Loop\n");}
+                        ;
+
+Var:                    Identifier                      {printf("Var -> Identifier\n");} 
+                        | Identifier L_SQUARE_BRACKET Expression R_SQUARE_BRACKET        
+                                                        {printf("Var -> Identifier L_SQUARE_BRACKET Expression R_SQUARE_BRACKET\n");}
+                        ;
+
+Identifier:             IDENT                           {printf("Identifier -> IDENT %s\n", $1);}
+                        ;
+
+*/
