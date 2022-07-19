@@ -20,10 +20,9 @@
         "SEMICOLON", "COLON", "COMMA", "L_PAREN", "R_PAREN", "L_SQUARE_BRACKET", "R_SQUARE_BRACKET", "ASSIGN", 
         "RETURN", "ENUM", "IDENT", "NUMBER", "PLUS", "MINUS", "MULT", "DIV", "MOD", "LT", "LTE", "GT", "GTE", 
         "EQ", "NEQ", "NOT", "AND", "OR", "ASSIGN", 
-        "Program", "Functions", "Function", "Dec", "Stmt", "Declaration", "Ident", "Statement", "A", "B", "C",
-        "D", "E", "E_BRANCH", "F", "G", "H", "Bool_Expr", "RAE", "Relation_And_Expr", "RE", "Relation_Expr", 
-        "RE_branch", "RE_A", "RE_D", "Comp", "Expression", "ME", "Multiplicative_Expr", "ME_branch", "Term", 
-        "Term_branch", "Expr", "Expr_Loop", "Var", "Identifier"
+        "Program", "Functions", "Function", "Dec", "Stmt", "Declaration", "Ident", "Statement", "B", "E_BRANCH", 
+        "Bool_Expr", "RAE", "Relation_And_Expr", "RE", "Relation_Expr", "RE_branch", "Comp", "Expression", "ME", 
+        "Multiplicative_Expr", "ME_branch", "Term", "Term_branch", "Expr", "Expr_Loop", "Var", "Identifier"
     }
 
     void yyerror(const char *msg);
@@ -36,7 +35,7 @@
     int num;
     char* ident;
     struct S { char* code; } statement;
-    struct Ew {
+    struct E {
         char* place;
         char* code;
         bool arr;
@@ -88,160 +87,191 @@ Function:               FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAM
                             std::string decs = $5.code;
                             int decNum = 0;
                             while(decs.find(".") != std::string::npos){
-                                int pos = decs.find(".")
+                                int pos = decs.find(".");
+                                decs.replace(pos, 1, "=");
+                                std::string part = ", $" + std::to_string(decNum) + "\n";
+                                decNum++;
+                                decs.replace(decs.find("\n", pos), 1, part);
                             }
+                            temp.append(decs);
+
+                            temp.append($8.code);
+                            std::string statements = $11.code;
+                            if (statements.find("continue") != std::string::npos){
+                                printf("ERROR: Continue outside loop in function %s\n", $2.place);
+                            }
+                            temp.append(statements);
+                            temp.append("endfunc\n\n");
                         }
 
-Dec:                    Declaration SEMICOLON Dec       {printf("Dec -> Declaration SEMICOLON Dec\n");}
-                        |/*empty*/                      {printf("Dec -> epison\n");}
+Dec:                    Declaration SEMICOLON Dec       
+                        {}
+                        |/*empty*/                      
+                        {}
                         ;
 
-Stmt:                   Statement SEMICOLON Stmt        {printf("Stmt -> Statement SEMICOLON Stmt\n");}
-                        | Statement SEMICOLON           {printf("Stmt -> Statement SEMICOLON\n");}
+Stmt:                   Statement SEMICOLON Stmt        
+                        {}
+                        | Statement SEMICOLON           
+                        {}
                         ;
 
-Declaration:            Ident COLON INTEGER             {printf("Declaration -> Ident COLON INTEGER\n");} 
+Declaration:            Ident COLON INTEGER
+                        {} 
                         | Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER        
-                                                        {printf("Declaration -> Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");} 
+                        {} 
                         | Ident COLON ENUM L_PAREN Ident R_PAREN                                
-                                                        {printf("Declaration -> Ident COLON ENUM L_PAREN Ident R_PAREN\n");}
+                        {}
                         ;
 
-Ident:                  Identifier                           {printf("Ident -> Identifier\n");} 
-                        | Identifier COMMA Ident             {printf("Ident -> Identifier COMMA Ident\n");}
+Ident:                  Identifier
+                        {} 
+                        | Identifier COMMA Ident             
+                        {}
                         ;
 
-Statement:              A                               {printf("Statement -> A\n");}
-                        |B                              {printf("Statement -> B\n");}
-                        |C                              {printf("Statement -> C\n");}
-                        |D                              {printf("Statement -> D\n");}
-                        |E                              {printf("Statement -> E\n");}
-                        |F                              {printf("Statement -> F\n");}
-                        |G                              {printf("Statement -> G\n");}
-                        |H                              {printf("Statement -> H\n");}
+Statement:              Var ASSIGN Expression
+                        {}
+                        |B                              
+                        {}
+                        |WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP                              
+                        {}
+                        |DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr                              
+                        {}
+                        |READ Var E_BRANCH                              
+                        {}
+                        |WRITE Var E_BRANCH                              
+                        {}
+                        |CONTINUE                              
+                        {}
+                        |RETURN Expression                              
+                        {
+                            std::string temp = "ret ";
+                            temp.append($2.code);
+                        }
                         ;       
 
-A:                      Var ASSIGN Expression           {printf("A -> Var ASSIGN Expression\n");}
-                        ;
-
-B:                      IF Bool_Expr THEN Stmt ENDIF    {printf("B -> IF Bool_Expr THEN Stmt ENDIF\n");} 
+B:                      IF Bool_Expr THEN Stmt ENDIF    
+                        {} 
                         | IF Bool_Expr THEN Stmt ELSE Stmt ENDIF        
-                                                        {printf("B -> IF Bool_Expr THEN Stmt ELSE Stmt ENDIF\n");}
+                        {}
                         ;
 
-C:                      WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP      
-                                                        {printf("C -> WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP\n");}
+E_BRANCH:               COMMA Var E_BRANCH              
+                        {} 
+                        |/*empty*/                      
+                        {} 
                         ;
 
-D:                      DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr       
-                                                        {printf("D -> DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr\n");}
+Bool_Expr:              Relation_And_Expr RAE           
+                        {}
                         ;
 
-E:                      READ Var E_BRANCH               {printf("E -> READ Var E_BRANCH\n");}
+RAE:                    OR Relation_And_Expr RAE        
+                        {
+                        } 
+                        |/*empty*/                      
+                        {}
                         ;
 
-E_BRANCH:               COMMA Var E_BRANCH              {printf("E_BRANCH -> COMMA Var E_BRANCH\n");} 
-                        |/*empty*/                      {printf("E_BRANCH -> epison\n");} 
+Relation_And_Expr:      Relation_Expr RE                
+                        {}
                         ;
 
-F:                      WRITE Var E_BRANCH              {printf("F -> WRITE Var E_BRANCH\n");}
+RE:                     AND Relation_Expr RE            
+                        {
+                        } 
+                        |/*empty*/                      
+                        {}
                         ;
 
-G:                      CONTINUE                        {printf("G -> CONTINUE\n");}
+Relation_Expr:          RE_branch                       
+                        {} 
+                        | NOT RE_branch                 
+                        {
+                        }
                         ;
 
-H:                      RETURN Expression               {printf("H -> RETURN Expression\n");}
-                        ;
-
-Bool_Expr:              Relation_And_Expr RAE           {printf("Bool_Expr -> Relation_And_Expr RAE\n");}
-                        ;
-
-RAE:                    OR Relation_And_Expr RAE        {printf("RAE -> OR Relation_And_Expr RAE\n");} 
-                        |/*empty*/                      {printf("RAE -> epison\n");}
-                        ;
-
-Relation_And_Expr:      Relation_Expr RE                {printf("Relation_And_Expr -> Relation_Expr RE\n");}
-                        ;
-
-RE:                     AND Relation_Expr RE            {printf("RE -> AND Relation_Expr RE\n");} 
-                        |/*empty*/                      {printf("RE -> epsilon\n");}
-                        ;
-
-Relation_Expr:          RE_branch                       {printf("Relation_Expr -> RE_branch\n");} 
-                        | NOT RE_branch                 {printf("Relation_Expr -> NOT RE_branch\n");}
-                        ;
-
-RE_branch:              RE_A                            {printf("RE_branch -> RE_A\n");} 
-                        | TRUE                          {printf("RE_branch -> TRUE\n");} 
-                        | FALSE                         {printf("RE_branch -> FALSE\n");} 
-                        | RE_D                          {printf("RE_branch -> RE_D\n");}
-                        ;
-
-RE_A:                   Expression Comp Expression      {printf("RE_A -> Expression Comp Expression\n");}
-                        ;
-
-RE_D:                   L_PAREN Bool_Expr R_PAREN       {printf("RE_D -> L_PAREN Bool_Expr R_PAREN\n");}
+RE_branch:              Expression Comp Expression
+                        {} 
+                        | TRUE                          
+                        {} 
+                        | FALSE                         
+                        {} 
+                        | L_PAREN Bool_Expr R_PAREN                          
+                        {}
                         ;
 
 Comp:                   EQ                              
-                        {printf("Comp -> EQ\n");}
+                        {}
                         |NEQ                            
-                        {printf("Comp -> NEQ\n");}
+                        {}
                         |LT                             
-                        {printf("Comp -> LT\n");}
+                        {}
                         |GT                             
-                        {printf("Comp -> GT\n");}
+                        {}
                         |LTE                            
-                        {printf("Comp -> LTE\n");}
+                        {}
                         |GTE                            
-                        {printf("Comp -> GTE\n");}
+                        {}
                         ;
 
-Expression:             Multiplicative_Expr  ME           {printf("Expression -> Multiplicative_Expr ME\n");} 
+Expression:             Multiplicative_Expr  ME           
+                        {} 
                         ;
 
 ME:                     MINUS Multiplicative_Expr ME    
-                        {printf("ME -> MINUS Multiplicative_Expr ME\n");
+                        {
                         } 
                         | PLUS Multiplicative_Expr ME   
-                        {printf("ME -> PLUS Multiplicative_Expr ME\n");
+                        {
                         } 
-                        |/*empty*/                      {printf("ME -> epison\n");} 
+                        |/*empty*/                      {} 
                         ;
 
-Multiplicative_Expr:    Term ME_branch                  {printf("Multiplicative_Expr -> Term ME_branch\n");} 
+Multiplicative_Expr:    Term ME_branch                  
+                        {} 
                         ;
 
 ME_branch:              MOD Term ME_branch              
-                        {printf("ME_branch -> MOD Term ME_branch\n");
+                        {
                         } 
                         | DIV Term ME_branch            
-                        {printf("ME_branch -> DIV Term ME_branch\n");
+                        {
                         } 
                         | MULT Term ME_branch           
-                        {printf("ME_branch -> MULT Term ME_branch\n");
+                        {
                         } 
-                        |/*empty*/                      {printf("ME_branch -> epison\n");}
+                        |/*empty*/                      {}
                         ;
 
-Term:                   Term_branch                     {printf("Term -> Term_branch\n");} 
+Term:                   Term_branch                     
+                        {} 
                         | MINUS Term_branch             
-                        {printf("Term -> MINUS Term_branch\n");
+                        {
                         } 
-                        | Identifier L_PAREN Expr R_PAREN    {printf("Term -> Identifier L_PAREN Expr R_PAREN\n");}
+                        | Identifier L_PAREN Expr R_PAREN    
+                        {}
                         ;
 
-Term_branch:            Var                             {printf("Term_branch -> Var\n");} 
-                        | NUMBER                        {printf("Term_branch -> NUMBER\n");} 
-                        | L_PAREN Expression R_PAREN    {printf("Term_branch -> L_PAREN Expression R_PAREN\n");}
+Term_branch:            Var                             
+                        {} 
+                        | NUMBER                        
+                        {} 
+                        | L_PAREN Expression R_PAREN    
+                        {}
                         ;
 
-Expr:                   Expr_Loop                       {printf("Expr -> Expr_Loop\n");} 
-                        |/*empty*/                      {printf("Expr -> epison\n");}
+Expr:                   Expr_Loop                       
+                        {} 
+                        |/*empty*/                      
+                        {}
                         ;
 
-Expr_Loop:              Expression                      {printf("Expr_Loop -> Expression\n");} 
-                        | Expression COMMA Expr_Loop    {printf("Expr_Loop -> Expression Comma Expr_Loop\n");}
+Expr_Loop:              Expression                      
+                        {} 
+                        | Expression COMMA Expr_Loop    
+                        {}
                         ;
 
 Var:                    Identifier                      
@@ -275,7 +305,8 @@ Var:                    Identifier
                         }
                         ;
 
-Identifier:             IDENT                           {printf("Identifier -> IDENT %s\n", $1);}
+Identifier:             IDENT                           
+                        {}
                         ;
 
 %%
