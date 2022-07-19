@@ -293,14 +293,7 @@ Comp:                   EQ
                         }
                         ;
 
-Expression:             Multiplicative_Expr  ME           
-                        {
-                            $$.code = strdup($1.code);
-                            $$.place = strdup($1.place);
-                        } 
-                        ;
-
-ME:                     MINUS Multiplicative_Expr ME   // Multiplicative_Expr MINUS Expression 
+Expression:             Multiplicative_Expr MINUS Expression
                         {
                             std::string temp;
                             std::string dst = newtemp();
@@ -315,7 +308,7 @@ ME:                     MINUS Multiplicative_Expr ME   // Multiplicative_Expr MI
                             $$.code = strdup(temp.c_str());
                             $$.place = strdup(dst.c_str());
                         } 
-                        | PLUS Multiplicative_Expr ME   
+                        | Multiplicative_ExprPLUS Expression
                         {
                             std::string temp;
                             std::string dst = newtemp();
@@ -337,11 +330,7 @@ ME:                     MINUS Multiplicative_Expr ME   // Multiplicative_Expr MI
                         } 
                         ;
 
-Multiplicative_Expr:    Term ME_branch                  
-                        {} 
-                        ;
-
-ME_branch:              MOD Term ME_branch      // Term MOD Multiplicative_Expr        
+Multiplicative_Expr:    Term MOD Multiplicative_Expr
                         {
                             std::string temp;
                             std::string dst = new_temp();
@@ -358,7 +347,7 @@ ME_branch:              MOD Term ME_branch      // Term MOD Multiplicative_Expr
                             $$.code = strdup(temp.c_str());
                             $$.place = strdup(dst.c_str());
                         } 
-                        | DIV Term ME_branch            
+                        | Term DIV Multiplicative_Expr        
                         {
                             std::string temp;
                             std::string dst = new_temp();
@@ -375,7 +364,7 @@ ME_branch:              MOD Term ME_branch      // Term MOD Multiplicative_Expr
                             $$.code = strdup(temp.c_str());
                             $$.place = strdup(dst.c_str());
                         } 
-                        | MULT Term ME_branch           
+                        | Term MULT Multiplicative_Expr
                         {
                             std::string temp;
                             std::string dst = new_temp();
@@ -391,30 +380,111 @@ ME_branch:              MOD Term ME_branch      // Term MOD Multiplicative_Expr
                             temp += "\n";
                             $$.code = strdup(temp.c_str());
                             $$.place = strdup(dst.c_str());
-                        } 
-                        |%empty                      
-                        {
-                            $$.place = strdup("");
-                            $$.code = strdup("");
                         }
                         ;
 
-Term:                   Term_branch                     
-                        {} 
-                        | MINUS Term_branch             
+Term:                   Var                     
                         {
+                            std::string dst = new_temp();
+                            std::string temp;
+                            if($1.arr){
+                                temp.append($1.code);
+                                temp.append(". ");
+                                temp.append(dst);
+                                temp.append("\n");
+                                temp += "=[] " + dst + ", ";
+                                temp.append($1.place);
+                                temp.append("\n");
+                            }
+                            else {
+                                temp.append(". ");
+                                temp.append(dst);
+                                temp.append("\n");
+                                temp = temp + "= " + dst + ", ";
+                                temp.append($1.place);
+                                temp.append("\n");
+                                temp.append($1.code);
+                            }
+                            if(varTemp.find($1.place) != varTemp.end()){
+                                varTemp[$1.place] = dst;
+                            }
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
-                        | Identifier L_PAREN Expr_Loop R_PAREN    
-                        {}
+                        | MINUS Var             
+                        {
+                            std::string dst = new_temp();
+                            std::string temp;
+                            if($2.arr){
+                                temp.append($2.code);
+                                temp.append(". ");
+                                temp.append(dst);
+                                temp.append("\n");
+                                temp += "=[] " + dst + ", ";
+                                temp.append($2.place);
+                                temp.append("\n");
+                            }
+                            else {
+                                temp.append(". ");
+                                temp.append(dst);
+                                temp.append("\n");
+                                temp = temp + "= " + dst + ", ";
+                                temp.append($2.place);
+                                temp.append("\n");
+                                temp.append($2.code);
+                            }
+                            if(varTemp.find($2.place) != varTemp.end()){
+                                varTemp[$2.place] = dst;
+                            }
+                            temp += "* " + dst + ", " + dst + ", -1\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
+                        }
+                        | NUMBER
+                        {
+                            std::string dst = new_temp();
+                            std::string temp;
+                            temp.append(". ");
+                            temp.append(dst);
+                            temp.append("\n");
+                            temp = temp + "= " + dst + ", " + std::to_string($1) + "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());        
+                        } 
+                        | MINUS NUMBER    
+                        {
+                            std::string dst = new_temp();
+                            std::string temp;
+                            temp.append(". ");
+                            temp.append(dst);
+                            temp.append("\n");
+                            temp = temp + "= " + dst + ", " + std::to_string($2) + "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
+                        }
+                        | L_PAREN Expression R_PAREN
+                        {
+                            $$.code = strdup($2.code);
+                            $$.place = strdup($2.place);
+                        }
+                        | Identifier L_PAREN Expression R_PAREN
+                        {
+                            //11:40
+                        }
+                        | MINUS L_PAREN Expression R_PAREN
+                        {
+                            std::string temp; 
+                            temp.append($3.code);
+                            temp.append("* ");
+                            temp.append($3.place);
+                            temp.append(", ");
+                            temp.append($3.place);
+                            temp.append(", -1\n");
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup($3.place);
+                        }
                         ;
-
-Term_branch:            Var                             
-                        {} 
-                        | NUMBER                        
-                        {} 
-                        | L_PAREN Expression R_PAREN    
-                        {}
-                        ;
+//11:20 TODO
 
 Expr_Loop:              Expression                      
                         {
