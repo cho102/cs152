@@ -50,7 +50,7 @@
                     A B C D E E_BRANCH F G H Bool_Expr RAE 
                     Relation_And_Expr RE Relation_Expr RE_branch RE_A 
                     RE_D Comp Expression ME Multiplicative_Expr 
-                    ME_branch Term Term_branch Expr Expr_Loop Var Identifier
+                    ME_branch Term Term_branch Expr_Loop Var Identifier
 %type <statement> Stmt Statement
 
 %token  FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS 
@@ -105,9 +105,18 @@ Function:               FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAM
                         }
 
 Dec:                    Declaration SEMICOLON Dec       
-                        {}
-                        |/*empty*/                      
-                        {}
+                        {
+                            std::string temp;
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup("");
+                        }
+                        |%empty                      
+                        {
+                            $$.place = strdup("");
+                            $$.code = strdup("");
+                        }
                         ;
 
 Stmt:                   Statement SEMICOLON Stmt        
@@ -159,8 +168,11 @@ B:                      IF Bool_Expr THEN Stmt ENDIF
 
 E_BRANCH:               COMMA Var E_BRANCH              
                         {} 
-                        |/*empty*/                      
-                        {} 
+                        |%empty                      
+                        {
+                            $$.place = strdup("");
+                            $$.code = strdup("");
+                        } 
                         ;
 
 Bool_Expr:              Relation_And_Expr RAE           
@@ -170,8 +182,11 @@ Bool_Expr:              Relation_And_Expr RAE
 RAE:                    OR Relation_And_Expr RAE        
                         {
                         } 
-                        |/*empty*/                      
-                        {}
+                        |%empty                      
+                        {
+                            $$.place = strdup("");
+                            $$.code = strdup("");
+                        }
                         ;
 
 Relation_And_Expr:      Relation_Expr RE                
@@ -181,8 +196,11 @@ Relation_And_Expr:      Relation_Expr RE
 RE:                     AND Relation_Expr RE            
                         {
                         } 
-                        |/*empty*/                      
-                        {}
+                        |%empty                      
+                        {
+                            $$.place = strdup("");
+                            $$.code = strdup("");
+                        }
                         ;
 
 Relation_Expr:          RE_branch                       
@@ -193,56 +211,169 @@ Relation_Expr:          RE_branch
                         ;
 
 RE_branch:              Expression Comp Expression
-                        {} 
+                        {
+                            std::string dst = new_temp();
+                            std::string temp;
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp = temp + ". " + dst + "\n" + $2.place + dst + ", " + $1.place + ", " + $3.place + "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str()); 
+                        } 
                         | TRUE                          
-                        {} 
+                        {
+                            std::string temp;
+                            temp.append("1");
+                            $$.code = strdup("");
+                            $$.place = strdup(dst.c_str());
+                        } 
                         | FALSE                         
-                        {} 
+                        {
+                            std::string temp;
+                            temp.append("0");
+                            $$.code = strdup("");
+                            $$.place = strdup(dst.c_str());
+                        } 
                         | L_PAREN Bool_Expr R_PAREN                          
                         {}
                         ;
 
 Comp:                   EQ                              
-                        {}
+                        {
+                            $$.code = strdup("");
+                            $$.place = strdup("== ";)
+                        }
                         |NEQ                            
-                        {}
+                        {
+                            $$.code = strdup("");
+                            $$.place = strdup("!= ";)
+                        }
                         |LT                             
-                        {}
+                        {
+                            $$.code = strdup("");
+                            $$.place = strdup("< ";)
+                        }
                         |GT                             
-                        {}
+                        {
+                            $$.code = strdup("");
+                            $$.place = strdup("> ";)
+                        }
                         |LTE                            
-                        {}
+                        {
+                            $$.code = strdup("");
+                            $$.place = strdup("<= ";)
+                        }
                         |GTE                            
-                        {}
+                        {
+                            $$.code = strdup("");
+                            $$.place = strdup(">= ";)
+                        }
                         ;
 
 Expression:             Multiplicative_Expr  ME           
-                        {} 
+                        {
+                            $$.code = strdup($1.code);
+                            $$.place = strdup($1.place);
+                        } 
                         ;
 
-ME:                     MINUS Multiplicative_Expr ME    
+ME:                     MINUS Multiplicative_Expr ME   // Multiplicative_Expr MINUS Expression 
                         {
+                            std::string temp;
+                            std::string dst = newtemp();
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp += ". " + dst + "\n";
+                            temp += "- " + dst + ", ";
+                            temp.append($1.place);
+                            temp += ", ";
+                            temp.append($3.place);
+                            temp += "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
                         | PLUS Multiplicative_Expr ME   
                         {
+                            std::string temp;
+                            std::string dst = newtemp();
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp += ". " + dst + "\n";
+                            temp += "+ " + dst + ", ";
+                            temp.append($1.place);
+                            temp += ", ";
+                            temp.append($3.place);
+                            temp += "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
-                        |/*empty*/                      {} 
+                        |%empty                      
+                        {
+                            $$.place = strdup("");
+                            $$.code = strdup("");
+                        } 
                         ;
 
 Multiplicative_Expr:    Term ME_branch                  
                         {} 
                         ;
 
-ME_branch:              MOD Term ME_branch              
+ME_branch:              MOD Term ME_branch      // Term MOD Multiplicative_Expr        
                         {
+                            std::string temp;
+                            std::string dst = new_temp();
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp.append(". ");
+                            temp.append(dst);
+                            temp.append("\n");
+                            temp += "% " + dst + ", ";
+                            temp.append($1.place);
+                            temp += ", ";
+                            temp.append($3.place);
+                            temp += "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
                         | DIV Term ME_branch            
                         {
+                            std::string temp;
+                            std::string dst = new_temp();
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp.append(". ");
+                            temp.append(dst);
+                            temp.append("\n");
+                            temp += "/ " + dst + ", ";
+                            temp.append($1.place);
+                            temp += ", ";
+                            temp.append($3.place);
+                            temp += "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
                         | MULT Term ME_branch           
                         {
+                            std::string temp;
+                            std::string dst = new_temp();
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp.append(". ");
+                            temp.append(dst);
+                            temp.append("\n");
+                            temp += "* " + dst + ", ";
+                            temp.append($1.place);
+                            temp += ", ";
+                            temp.append($3.place);
+                            temp += "\n";
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
-                        |/*empty*/                      {}
+                        |%empty                      
+                        {
+                            $$.place = strdup("");
+                            $$.code = strdup("");
+                        }
                         ;
 
 Term:                   Term_branch                     
@@ -250,7 +381,7 @@ Term:                   Term_branch
                         | MINUS Term_branch             
                         {
                         } 
-                        | Identifier L_PAREN Expr R_PAREN    
+                        | Identifier L_PAREN Expr_Loop R_PAREN    
                         {}
                         ;
 
@@ -262,16 +393,27 @@ Term_branch:            Var
                         {}
                         ;
 
-Expr:                   Expr_Loop                       
-                        {} 
-                        |/*empty*/                      
-                        {}
-                        ;
-
 Expr_Loop:              Expression                      
-                        {} 
+                        {
+                            std::string temp;
+                            temp.append($1.code);
+                            temp.append("param ");
+                            temp.append($1.place);
+                            temp.append("\n");
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup("");
+                        } 
                         | Expression COMMA Expr_Loop    
-                        {}
+                        {
+                            std::string temp;
+                            temp.append($1.code);
+                            temp.append("param ");
+                            temp.append($1.place);
+                            temp.append("\n");
+                            temp.append($3.code);
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup("");
+                        }
                         ;
 
 Var:                    Identifier                      
