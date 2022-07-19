@@ -189,24 +189,44 @@ RAE:                    OR Relation_And_Expr RAE
                         }
                         ;
 
-Relation_And_Expr:      Relation_Expr RE                
-                        {}
-                        ;
-
-RE:                     AND Relation_Expr RE            
+Relation_And_Expr:      Relation_Expr AND Relation_And_Expr            
                         {
+                            std::string temp;
+                            std::string dst = new_temp();
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            temp += ". " + dst + "\n";
+                            temp += "&& " + dst + "\n";
+                            temp.append($1.place);
+                            temp.append(", ");
+                            temp.append($3.place);
+                            temp.append("\n");
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         } 
-                        |%empty                      
+                        | Relation_Expr                    
                         {
-                            $$.place = strdup("");
-                            $$.code = strdup("");
+                            $$.place = strdup($1.code);
+                            $$.code = strdup($1.place);
                         }
                         ;
 
 Relation_Expr:          RE_branch                       
-                        {} 
+                        {
+                            $$.code = strdup($1.code);
+                            $$.place = strdup($1.place);
+                        } 
                         | NOT RE_branch                 
                         {
+                            std::string temp;
+                            std::string dst = new_temp();
+                            temp.append($2.code);
+                            temp += ". " + dst + "\n";
+                            temp += "! " + dst + ", ";
+                            temp.append($2.place);
+                            temp.append("\n");
+                            $$.code = strdup(temp.c_str());
+                            $$.place = strdup(dst.c_str());
                         }
                         ;
 
@@ -235,7 +255,10 @@ RE_branch:              Expression Comp Expression
                             $$.place = strdup(dst.c_str());
                         } 
                         | L_PAREN Bool_Expr R_PAREN                          
-                        {}
+                        {
+                            $$.code = strdup($2.code);
+                            $$.place = strdup($2.place);
+                        }
                         ;
 
 Comp:                   EQ                              
