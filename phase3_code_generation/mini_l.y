@@ -14,7 +14,7 @@
     std::map<std::string, int> arrSize;
     bool mainFunc = false;
     std::set<std::string> funcs;
-    std::set<std::String> reserved {"FUNCTION", "FuncIdent", "BEGIN_PARAMS", "END_PARAMS", "BEGIN_LOCALS", "END_LOCALS", 
+    std::set<std::string> reserved {"FUNCTION", "FuncIdent", "BEGIN_PARAMS", "END_PARAMS", "BEGIN_LOCALS", "END_LOCALS", 
                                     "BEGIN_BODY", "END_BODY", "INTEGER", "ARRAY", "OF", "IF", "THEN", "ENDIF", "ELSE", 
                                     "WHILE", "FOR", "DO", "BEGINLOOP", "ENDLOOP", "CONTINUE", "READ", "WRITE", "TRUE", 
                                     "FALSE", "SEMICOLON", "COLON", "COMMA", "L_PAREN", "R_PAREN", 
@@ -23,7 +23,7 @@
                                     "EQ", "NEQ", "NOT", "AND", "OR", "ASSIGN",
                                     "Program", "Function", "Dec", "Stmt", "Declaration", "Ident", "Statement", "E_BRANCH", 
                                     "Bool_Expr", "Relation_And_Expr", "Relation_Expr", "RE_branch", "Comp", "Expression", 
-                                    "Multiplicative_Expr", "Term", "Expr_Loop", "Var", "Identifier"}
+                                    "Multiplicative_Expr", "Term", "Expr_Loop", "Var", "Identifier"};
     void yyerror(const char *msg);
     int yylex();
     std::string new_temp();
@@ -129,8 +129,8 @@ Dec:                    Declaration SEMICOLON Dec
                         }
                         |%empty                      
                         {
-                            $$.place = strdup("");
                             $$.code = strdup("");
+                            $$.place = strdup("");
                         }
                         ;
 
@@ -143,8 +143,8 @@ Stmt:                   Statement SEMICOLON Stmt
                         }
                         | %empty           
                         {
-                            $$.place = strdup("");
                             $$.code = strdup("");
+                            //$$.place = strdup("");
                         }
                         ;
 
@@ -174,16 +174,19 @@ Ident:                  Identifier
 
 Statement:              Var ASSIGN Expression           
                         {
+                            /*
                             std::string temp;
                             temp += "= ";
                             temp.append($1.place);
                             temp += ", ";
                             temp.append($3.place);
-                            $$.place = strdup("");
                             $$.code = strdup("");
+                            $$.place = strdup("");
+                            */
                         }
                         |IF Bool_Expr THEN Stmt ENDIF    
                         {
+                            /*
                             std::string labelt = new_label();
                             std::string labelf = new_label();
                             std::string temp;
@@ -195,11 +198,13 @@ Statement:              Var ASSIGN Expression
                             temp += ": " + labelt + "\n";
                             temp.append($4.code);
                             temp += ": " + labelf + "\n";
-                            $$.place = strdup("");
                             $$.code = strdup("");
+                            $$.place = strdup("");
+                            */
                         } 
                         |IF Bool_Expr THEN Stmt ELSE Stmt ENDIF        
                         {
+                            /*
                             std::string labelt = new_label();
                             std::string labelf = new_label();
                             std::string temp;
@@ -212,8 +217,9 @@ Statement:              Var ASSIGN Expression
                             temp.append($4.code);
                             temp += ": " + labelf + "\n";
                             temp.append($6.code);
-                            $$.place = strdup("");
                             $$.code = strdup("");
+                            $$.place = strdup("");
+                            */
                         }
                         |WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP      
                         {
@@ -245,7 +251,7 @@ Statement:              Var ASSIGN Expression
                         }
                         |CONTINUE                        
                         {
-                            $$.code = strdup("continue\n")
+                            $$.code = strdup("continue\n");
                         }
                         |RETURN Expression               
                         {
@@ -285,8 +291,8 @@ E_BRANCH:               Var COMMA E_BRANCH
                             }
                             temp.append($1.place);
                             temp.append("\n");
-                            $$.place = strdup("");
                             $$.code = strdup("");
+                            $$.place = strdup("");
                         } 
                         ;
 Bool_Expr:              Relation_And_Expr OR Bool_Expr        
@@ -364,14 +370,14 @@ RE_branch:              Expression Comp Expression
                             std::string temp;
                             temp.append("1");
                             $$.code = strdup("");
-                            $$.place = strdup(dst.c_str());
+                            $$.place = strdup(temp.c_str());
                         } 
                         | FALSE                         
                         {
                             std::string temp;
                             temp.append("0");
                             $$.code = strdup("");
-                            $$.place = strdup(dst.c_str());
+                            $$.place = strdup(temp.c_str());
                         } 
                         | L_PAREN Bool_Expr R_PAREN                          
                         {
@@ -382,32 +388,32 @@ RE_branch:              Expression Comp Expression
 Comp:                   EQ                              
                         {
                             $$.code = strdup("");
-                            $$.place = strdup("== ";)
+                            $$.place = strdup("== ");
                         }
                         |NEQ                            
                         {
                             $$.code = strdup("");
-                            $$.place = strdup("!= ";)
+                            $$.place = strdup("!= ");
                         }
                         |LT                             
                         {
                             $$.code = strdup("");
-                            $$.place = strdup("< ";)
+                            $$.place = strdup("< ");
                         }
                         |GT                             
                         {
                             $$.code = strdup("");
-                            $$.place = strdup("> ";)
+                            $$.place = strdup("> ");
                         }
                         |LTE                            
                         {
                             $$.code = strdup("");
-                            $$.place = strdup("<= ";)
+                            $$.place = strdup("<= ");
                         }
                         |GTE                            
                         {
                             $$.code = strdup("");
-                            $$.place = strdup(">= ";)
+                            $$.place = strdup(">= ");
                         }
                         ;
 
@@ -612,7 +618,7 @@ Term:                   Var
                             temp.append($3.code);
                             temp += ". " + dst + "\ncall ";
                             temp.append($1.place);
-                            temp ++ ", " + dst + "\n";
+                            temp += ", " + dst + "\n";
                             $$.code = strdup(temp.c_str());
                             $$.place = strdup(dst.c_str());
                         }
@@ -681,27 +687,12 @@ Identifier:             IDENT
 
 %%
 
-int main(int argc, char **argv)
-{
-    if (argc > 1)
-    {
-        yyin = fopen(argv[1], "r");
-        if(yyin == NULL)
-        {
-            printf("This is not a valid file name: %s filename\n", argv[1]);
-            exit(0);
-        }
-    }
-    yyparse();
-    return 0;
-}
-
 void yyerror(const char *msg)
 {
     extern int yylineno;
     extern char *yytext;
 
-    printf("%s on line %d at char %d at symbol \"%s\"\n", msg, yylineno, curPos, yytext);
+    printf("%s on line %d at char %d at symbol \"%s\"\n", msg, yylineno, currPos, yytext);
     exit(1);
 }
 
