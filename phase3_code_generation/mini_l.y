@@ -14,7 +14,7 @@
     std::map<std::string, int> arrSize;
     bool mainFunc = false;
     std::set<std::string> funcs;
-    std::set<std::String> reserved {"FUNCTION", "BEGIN_PARAMS", "END_PARAMS", "BEGIN_LOCALS", "END_LOCALS", 
+    std::set<std::String> reserved {"FUNCTION", "FuncIdent", "BEGIN_PARAMS", "END_PARAMS", "BEGIN_LOCALS", "END_LOCALS", 
                                     "BEGIN_BODY", "END_BODY", "INTEGER", "ARRAY", "OF", "IF", "THEN", "ENDIF", "ELSE", 
                                     "WHILE", "FOR", "DO", "BEGINLOOP", "ENDLOOP", "CONTINUE", "READ", "WRITE", "TRUE", 
                                     "FALSE", "SEMICOLON", "COLON", "COMMA", "L_PAREN", "R_PAREN", 
@@ -31,8 +31,8 @@
 %}
 
 %union{
-    int num;
-    char* ident;
+    int num_val;
+    char* id_val;
     struct S {
         char* code;
     } statement;
@@ -45,9 +45,9 @@
 
 %start Program
 
-%token <num> NUMBER
-%token <ident> IDENT
-%type <expression>  Function Dec Declaration Ident E_BRANCH 
+%token <num_val> NUMBER
+%token <id_val> IDENT
+%type <expression>  Function FuncIdent Dec Declaration Ident E_BRANCH 
                     Bool_Expr Relation_And_Expr Relation_Expr RE_branch Comp 
                     Expression Multiplicative_Expr Term Expr_Loop Var Identifier
 %type <statement> Statement Stmt
@@ -77,7 +77,7 @@ Program:                %empty
                         {}
                         ;
 
-Function:               FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
+Function:               FUNCTION FuncIdent SEMICOLON BEGIN_PARAMS Dec END_PARAMS BEGIN_LOCALS Dec END_LOCALS BEGIN_BODY Stmt END_BODY
                         {
                             std::string temp = "func ";
                             temp.append($2.place);
@@ -105,8 +105,20 @@ Function:               FUNCTION Identifier SEMICOLON BEGIN_PARAMS Dec END_PARAM
                             }
                             temp.append(statements);
                             temp.append("endfunc\n\n");
+                            printf(temp.c_str());
                         }
-
+                        ;
+FuncIdent:              IDENT
+                        {
+                            if(funcs.find($1) != funcs.end()){
+                                printf("function name %s already declared.\n", $1);
+                            } else {
+                                funcs.insert($1);
+                            }
+                            $$.place = strdup($1);
+                            $$.code = strdup("");
+                        }
+                        ;
 Dec:                    Declaration SEMICOLON Dec       
                         {
                             std::string temp;
@@ -123,7 +135,12 @@ Dec:                    Declaration SEMICOLON Dec
                         ;
 
 Stmt:                   Statement SEMICOLON Stmt        
-                        {/*TODO*/}
+                        {
+                            std::string temp;
+                            temp.append($1.code);
+                            temp.append($3.code);
+                            $$.code = strdup(temp.c_str());
+                        }
                         | %empty           
                         {
                             $$.place = strdup("");
@@ -140,9 +157,19 @@ Declaration:            Ident COLON INTEGER
                         ;
 
 Ident:                  Identifier
-                        {/*TODO*/} 
+                        {
+                            $$.place = strdup($1.place);
+                            $$.code = strdup("");
+                        } 
                         | Identifier COMMA Ident             
-                        {/*TODO*/}
+                        {
+                            std::string temp;
+                            temp.append($1.place);
+                            temp.append("|");
+                            temp.append($3.place);
+                            $$.place = strdup(temp.c_str());
+                            $$.code = strdup("");
+                        }
                         ;
 
 Statement:              Var ASSIGN Expression           
@@ -197,41 +224,38 @@ Statement:              Var ASSIGN Expression
                         |READ E_BRANCH              
                         {
                             std::string temp;
-                            std::string dst = new_temp();
-                            if($2.arr){
-                                temp += ".[]< " + dst + ", ";
-                                //index
-                                temp.append("\n");;
+                            temp.append($2.code);
+                            size_t pos = temp.find("|", 0);
+                            while(pos != std::string::npos){
+                                temp.replace(pos, 1, "<");
+                                pos = temp.find("|", pos);
                             }
-                            else{
-                                temp += ".[]< " + dst + "\n";
-                            }
-
-                            $$.place = strdup("");
-                            $$.code = strdup("");
+                            $$.code = strdup(temp.c_str());
                         }
                         |WRITE E_BRANCH              
                         {
                             std::string temp;
-                            if($2.arr){
-                                temp += ".[]> ";
-                                temp.append($2.place);
-                                temp += ", ";
-                                //index
-                                temp.append("\n");;
+                            temp.append($2.code);
+                            size_t pos = temp.find("|", 0);
+                            while(pos != std::string::npos){
+                                temp.replace(pos, 1, ">");
+                                pos = temp.find("|", pos);
                             }
-                            else{
-                                temp += ".[]>" + dst + "\n";
-                            }
-                            $$.place = strdup("");
-                            $$.code = strdup("")
+                            $$.code = strdup(temp.c_str());
                         }
                         |CONTINUE                        
-                        {}
+                        {
+                            $$.code = strdup("continue\n")
+                        }
                         |RETURN Expression               
                         {
-                            std::string temp = "ret ";
-                            temp.append($2.code);}
+                            std::string temp;
+                            temp.append($2.code);
+                            temp.append("ret ");
+                            temp.append($2.place);
+                            temp.append("\n");
+                            $$.code = strdup(temp.c_str());
+                        }
                         ;
 E_BRANCH:               Var COMMA E_BRANCH              
                         {
@@ -650,7 +674,7 @@ Var:                    Identifier
 Identifier:             IDENT
                         {
                             $$.code = strdup("");
-                            $$.place = strdup($1.place);
+                            $$.place = strdup($1);
                         }
                         ;
 

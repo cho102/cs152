@@ -28,7 +28,6 @@ if                 {currPos += yyleng; return IF;}
 then               {currPos += yyleng; return THEN;}
 endif              {currPos += yyleng; return ENDIF;}
 else               {currPos += yyleng; return ELSE;}
-/*for                {currPos += yyleng; return FOR;}*/
 while              {currPos += yyleng; return WHILE;}
 do                 {currPos += yyleng; return DO;}
 beginloop          {currPos += yyleng; return BEGINLOOP;}
