@@ -151,8 +151,11 @@ Stmt:                   Statement SEMICOLON Stmt
 Declaration:            Ident COLON INTEGER             
                         {
                             std::string temp;
-                            if(varTemp.find($1.place)){
+                            if(varTemp.find($1.place) != varTemp.end()){
                                 printf("ERROR: %s has already been defined\n" , $1.place);
+                            }
+                            else if(reserved.find($1.place) != reserved.end()){
+                                printf("ERROR: %s is a reserved word\n" , $1.place);
                             }
                             else {
                                 varTemp.insert($1.place);
@@ -167,8 +170,11 @@ Declaration:            Ident COLON INTEGER
                             if (num <= 0){
                                 printf("ERROR: Declaring an array of size <= 0\n");
                             }
-                            if(varTemp.find($1.place)){
+                            if(varTemp.find($1.place) != varTemp.end()){
                                 printf("ERROR: %s has already been defined\n" , $1.place);
+                            }
+                            else if(reserved.find($1.place) != reserved.end()){
+                                printf("ERROR: %s is a reserved word\n" , $1.place);
                             }
                             else {
                                 varTemp.insert($1.place);
