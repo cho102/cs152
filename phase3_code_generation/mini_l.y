@@ -149,11 +149,43 @@ Stmt:                   Statement SEMICOLON Stmt
                         ;
 
 Declaration:            Ident COLON INTEGER             
-                        {} 
-                        | Ident COLON  ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER        
-                        {/*TODO*/} 
+                        {
+                            std::string temp;
+                            if(varTemp.find($1.place)){
+                                printf("ERROR: %s has already been defined\n" , $1.place);
+                            }
+                            else {
+                                varTemp.insert($1.place);
+                                temp += ". " + $1.place + "\n"; 
+                            }
+                            $$.code = strdup(temp.c_str());
+
+                        } 
+                        | Ident COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER        
+                        {
+                            int num = $5;
+                            if (num <= 0){
+                                printf("ERROR: Declaring an array of size <= 0\n");
+                            }
+                            if(varTemp.find($1.place)){
+                                printf("ERROR: %s has already been defined\n" , $1.place);
+                            }
+                            else {
+                                varTemp.insert($1.place);
+                                temp += ".[] " + $1.place + ", " + num + "\n"; 
+                            }
+                            $$.code = strdup(temp.c_str());
+                        } 
                         | Ident COLON ENUM L_PAREN Ident R_PAREN                                
-                        {/*TODO*/}
+                        {/*TODO*/
+                            if(varTemp.find($1.place)){
+                                printf("ERROR: %s has already been defined\n" , $1.place);
+                            }
+                            else {
+                                varTemp.insert($1.place);
+                            }
+                            $$.code = strdup(temp.c_str());
+                        }
                         ;
 
 Ident:                  Identifier
@@ -174,19 +206,15 @@ Ident:                  Identifier
 
 Statement:              Var ASSIGN Expression           
                         {
-                            /*
                             std::string temp;
                             temp += "= ";
                             temp.append($1.place);
                             temp += ", ";
                             temp.append($3.place);
-                            $$.code = strdup("");
-                            $$.place = strdup("");
-                            */
+                            $$.code = strdup(temp.c_str());
                         }
                         |IF Bool_Expr THEN Stmt ENDIF    
                         {
-                            /*
                             std::string labelt = new_label();
                             std::string labelf = new_label();
                             std::string temp;
@@ -198,13 +226,11 @@ Statement:              Var ASSIGN Expression
                             temp += ": " + labelt + "\n";
                             temp.append($4.code);
                             temp += ": " + labelf + "\n";
-                            $$.code = strdup("");
-                            $$.place = strdup("");
-                            */
+                            $$.code = strdup(temp.c_str());
+                            
                         } 
                         |IF Bool_Expr THEN Stmt ELSE Stmt ENDIF        
                         {
-                            /*
                             std::string labelt = new_label();
                             std::string labelf = new_label();
                             std::string temp;
@@ -217,16 +243,40 @@ Statement:              Var ASSIGN Expression
                             temp.append($4.code);
                             temp += ": " + labelf + "\n";
                             temp.append($6.code);
-                            $$.code = strdup("");
-                            $$.place = strdup("");
-                            */
+                            $$.code = strdup(temp.c_str());
                         }
                         |WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP      
                         {
-                            //TODO
+                            std::string labelt = new_label();
+                            std::string labelf = new_label();
+                            std::string dst = new_temp();
+                            std::string temp;
+                            temp += ": " + labelt + "\n";
+                            temp.append($2.code);
+                            temp += "== " + dst + ", ";
+                            temp.append($2.place);
+                            temp += ", 0\n";
+                            temp += "?:= " + labelf + ", " + dst  +"\n";
+                            temp.append($4.code);
+                            temp += ":= " + labelt + "\n";
+                            temp += ": " + labelf + "\n";
+                            $$.code = strdup(temp.c_str());
                         }
                         |DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr       
-                        {/*TODO*/}
+                        {
+                            std::string labelt = new_label();
+                            std::string label_check = new_label();
+                            std::string temp;
+                            temp += ": " + labelt + "\n";
+                            temp.append($3.code);
+                            temp += ":= " + label_check + "\n";
+                            temp += ": " + label_check + "\n";
+                            temp.append($6.code);
+                            temp += "?:= " + labelt + ", ";
+                            temp.append($6.place);
+                            temp.append("\n");
+                            $$.code = strdup(temp.c_str());;
+                        }
                         |READ E_BRANCH              
                         {
                             std::string temp;
@@ -312,8 +362,8 @@ Bool_Expr:              Relation_And_Expr OR Bool_Expr
                         } 
                         | Relation_And_Expr                      
                         {
-                            $$.place = strdup($1.code);
-                            $$.code = strdup($1.place);
+                            $$.place = strdup($1.place);
+                            $$.code = strdup($1.code);
                         }
                         ;
 Relation_And_Expr:      Relation_Expr AND Relation_And_Expr            
@@ -333,8 +383,8 @@ Relation_And_Expr:      Relation_Expr AND Relation_And_Expr
                         } 
                         | Relation_Expr                    
                         {
-                            $$.place = strdup($1.code);
-                            $$.code = strdup($1.place);
+                            $$.place = strdup($1.place);
+                            $$.code = strdup($1.code);
                         }
                         ;
 Relation_Expr:          RE_branch                       

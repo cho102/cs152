@@ -1,9 +1,9 @@
 func main
-   . _n
-   . _i
-   . _j
-   . _k
-   .[] _t, 20
+   . n
+   . i
+   . j
+   . k
+   .[] t, 20
    . t0
    . t1
    . p0
@@ -39,88 +39,100 @@ func main
    . p21
    . p22
    . p23
+
+
+                  //MAIN PROGRAM
+
 : START
-   .< _i
-   .< _j
-   = _k, 0
-   = _n, 20
-: L0
-   []= _t, _k, _k
-   + t0, _k, 1
-   = _k, t0
-   % t1, _k, 2
-   == p0, t1, 0
-   == p1, p0, 0
+   .< i
+   .< j
+   = k, 0
+   = n, 20
+
+DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr
+: L0                    //L0 = labelt
+   []= t, k, k          //Stmt Start
+   + t0, k, 1
+   = k, t0        
+   % t1, k, 2     
+   == p0, t1, 0    
+   == p1, p0, 0    
    ?:= L2, p1
-   := L1
+   := L1              //L1 = labelcheck
    := L3
 : L2
 : L3
-   - t2, _k, 1
-   .[]> _t, t2
-: L1
-   < p2, _k, _n
+   - t2, k, 1
+   .[]> t, t2
+: L1                 //Define L1
+   < p2, k, n        //Bool_Expr Code
    == p3, p2, 1
-   ?:= L0, p3
-   < p4, _i, _j
-   < p5, _j, _n
+   ?:= L0, p3        //goto L0
+   End of DO BEGINLOOP Stmt ENDLOOP WHILE Bool_Expr
+
+   < p4, i, j        
+   < p5, j, n
    && p6, p4, p5
-   >= p7, _i, 0
+   >= p7, i, 0
    && p8, p6, p7
    == p9, p8, 0
-   ?:= L4, p9
-   * t3, _i, 2
-   []= _t, _i, t3
-   * t4, _j, 2
-   []= _t, _j, t4
-   =[] t5, _t, _i
-   = _k, t5
-   =[] t6, _t, _j
-   []= _t, _i, t6
-   []= _t, _j, _k
-   := L5
+   ?:= L4, p9        // i<j and j < n and i>=0 is true go to L4
+   * t3, i, 2
+   []= t, i, t3
+   * t4, j, 2
+   []= t, j, t4
+   =[] t5, t, i
+   = k, t5
+   =[] t6, t, j
+   []= t, i, t6
+   []= t, j, k
+   := L5 // EXIT IF-ELSE
 : L4
-: L6
-   >= p10, _i, _j
+: L6                             L6=labelt
+WHILE Bool_Expr BEGINLOOP Stmt ENDLOOP
+   >= p10, i, j                  Bool_Expr Code
    = p11, 0
    || p12, p10, p11
-   == p13, p12, 0
-   ?:= L7, p13
-   + t7, 1, _i
-   - t8, t7, _j
+   == p13, p12, 0                //exit out of loop
+   ?:= L7, p13                   L7=labelf-goto
+   + t7, 1, i                    Stmt Code
+   - t8, t7, j
    % t9, t8, 3
-   = _k, t9
-   - t10, _i, 1
-   = _i, t10
-   > p14, _k, 1
+   = k, t9
+   - t10, i, 1
+   = i, t10
+   > p14, k, 1
    == p15, p14, 0
    ?:= L8, p15
-   := L6
+   := L6                         goto L6
    := L9
 : L8
 : L9
-   .> _k
+   .> k
    := L6
-: L7
+: L7                             goto L7
+
+
+
 : L5
-   .> _i
-   .> _j
-   .> _k
-   < p16, _i, _n
-   >= p17, _i, 0
+   .> i
+   .> j
+   .> k
+   < p16, i, n
+   >= p17, i, 0
    && p18, p16, p17
    == p19, p18, 0
    ?:= L10, p19
-   .[]> _t, _i
+   .[]> t, i
    := L11
 : L10
 : L11
-   < p20, _j, _n
-   >= p21, _j, 0
+   < p20, j, n
+   >= p21, j, 0
    && p22, p20, p21
    == p23, p22, 0
    ?:= L12, p23
-   .[]> _t, _j
+   .[]> t, j
    := L13
 : L12
 : L13
